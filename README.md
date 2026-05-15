@@ -25,6 +25,7 @@ switch services represent the three override states.
   "pollIntervalSeconds": 900
 }
 ```
+**Head over to [MAST API](https://mast.today/api.html) to obtain a Free Mast API License.**
 
 `apiKey` is sent to Mast as the `x-mast-license-key` header.
 
