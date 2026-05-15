@@ -1,0 +1,52 @@
+{
+  "pluginAlias": "Mast",
+  "pluginType": "platform",
+  "singular": true,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "default": "Mast Flag Status",
+        "required": true
+      },
+      "apiKey": {
+        "title": "Mast API Key",
+        "type": "string",
+        "required": true
+      },
+      "countryCode": {
+        "title": "Country Code",
+        "type": "string",
+        "default": "US",
+        "required": true
+      },
+      "stateCode": {
+        "title": "State Code",
+        "type": "string",
+        "placeholder": "AZ"
+      },
+      "pollIntervalSeconds": {
+        "title": "Poll Interval",
+        "type": "integer",
+        "default": 900,
+        "minimum": 60,
+        "description": "How often to refresh status from Mast while in Auto mode."
+      },
+      "baseUrl": {
+        "title": "Mast API Base URL",
+        "type": "string",
+        "default": "https://www.mast.today"
+      }
+    }
+  },
+  "form": [
+    "name",
+    "apiKey",
+    "countryCode",
+    "stateCode",
+    "pollIntervalSeconds",
+    "baseUrl"
+  ]
+}
