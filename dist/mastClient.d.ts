@@ -4,6 +4,7 @@ export declare class MastClient {
     private readonly apiKey;
     private readonly countryCode;
     private readonly stateCode?;
-    constructor(baseUrl: string, apiKey: string, countryCode: string, stateCode?: string | undefined);
+    private readonly timeoutMs;
+    constructor(baseUrl: string, apiKey: string, countryCode: string, stateCode?: string | undefined, timeoutMs?: number);
     getStatus(): Promise<MastStatus>;
 }

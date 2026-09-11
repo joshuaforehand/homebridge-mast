@@ -6,11 +6,13 @@ class MastClient {
     apiKey;
     countryCode;
     stateCode;
-    constructor(baseUrl, apiKey, countryCode, stateCode) {
+    timeoutMs;
+    constructor(baseUrl, apiKey, countryCode, stateCode, timeoutMs = 10_000) {
         this.baseUrl = baseUrl;
         this.apiKey = apiKey;
         this.countryCode = countryCode;
         this.stateCode = stateCode;
+        this.timeoutMs = timeoutMs;
     }
     async getStatus() {
         const url = new URL('/api/v1/status', this.baseUrl);
@@ -19,6 +21,7 @@ class MastClient {
             url.searchParams.set('stateCode', this.stateCode);
         }
         const response = await fetch(url, {
+            signal: AbortSignal.timeout(this.timeoutMs),
             headers: {
                 'accept': 'application/json',
                 'x-mast-license-key': this.apiKey,

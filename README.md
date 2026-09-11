@@ -30,3 +30,32 @@ switch services represent the three override states.
 `apiKey` is sent to Mast as the `x-mast-license-key` header.
 
 Leave `stateCode` blank to use national status only.
+
+## Development
+
+Use `npm ci`, `npm run lint`, and `npm test` to install dependencies, lint the
+TypeScript source, and run the regression tests. Tests exercise Homebridge's
+actual HomeKit characteristic handlers as well as API failures and accessory
+restoration. A paired Homebridge/HomeKit installation is still needed for
+end-to-end verification in Apple's Home app.
+
+Selecting an override saves it to the Homebridge accessory cache. Turning off
+the selected switch restores it to On; select a different mode to change modes.
+API requests time out after 10 seconds, and overlapping refreshes share a request.
+Changing the configured location removes the previous location's accessory;
+HomeKit automations targeting that accessory may need updating.
+
+## Publishing
+
+The npm trusted publisher must use:
+
+- Organization or user: `joshuaforehand`
+- Repository: `homebridge-mast`
+- Workflow filename: `publish.yml`
+- Environment name: leave blank
+- Allow npm publish: enabled
+
+After merging the release changes, create a GitHub release with a tag matching
+`package.json`, for example `v0.1.1`. The publishing workflow builds, lints, and
+tests before publishing through npm OIDC. It skips prereleases and rejects tags
+that do not match the package version. No npm token secret is needed.

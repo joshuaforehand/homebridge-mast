@@ -38,6 +38,11 @@ export class MastPlatform implements DynamicPlatformPlugin {
 
   private discoverAccessory(): void {
     const uuid = this.api.hap.uuid.generate(this.deviceId);
+    const obsoleteAccessories = this.accessories.filter(accessory => accessory.UUID !== uuid);
+    if (obsoleteAccessories.length > 0) {
+      this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, obsoleteAccessories);
+      this.accessories.splice(0, this.accessories.length, ...this.accessories.filter(accessory => accessory.UUID === uuid));
+    }
     const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
     if (existingAccessory) {
@@ -57,6 +62,7 @@ export class MastPlatform implements DynamicPlatformPlugin {
     accessory.context.deviceId = this.deviceId;
     new MastFlagAccessory(this, accessory);
     this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+    this.accessories.push(accessory);
   }
 
   private get deviceId(): string {

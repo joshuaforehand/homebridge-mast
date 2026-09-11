@@ -1,6 +1,6 @@
 {
   "name": "homebridge-mast",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Homebridge plugin for Mast flag half-mast status.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,7 +19,8 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint src --ext .ts",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "test": "npm run build && node --test test/*.test.cjs"
   },
   "files": [
     "dist",
@@ -34,5 +35,13 @@
     "eslint": "^8.57.0",
     "homebridge": "^2.0.0-beta.24",
     "typescript": "^5.4.5"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joshuaforehand/homebridge-mast.git"
+  },
+  "bugs": {
+    "url": "https://github.com/joshuaforehand/homebridge-mast/issues"
+  },
+  "homepage": "https://github.com/joshuaforehand/homebridge-mast#readme"
 }
