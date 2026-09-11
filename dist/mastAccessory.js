@@ -13,6 +13,7 @@ class MastFlagAccessory {
     apiStatus;
     apiFault = false;
     pollTimer;
+    refreshPromise;
     constructor(platform, accessory) {
         this.platform = platform;
         this.accessory = accessory;
@@ -42,6 +43,7 @@ class MastFlagAccessory {
         this.syncHomeKitState();
         this.refreshFromApi();
         this.startPolling();
+        this.platform.api.on('shutdown', () => clearInterval(this.pollTimer));
     }
     getOverrideService(mode, label) {
         const service = this.accessory.getServiceById(this.Service.Switch, mode)
@@ -60,14 +62,17 @@ class MastFlagAccessory {
     }
     async setOverrideMode(mode, value) {
         if (value !== true) {
-            this.syncOverrideSwitches();
+            // HAP applies the requested value after the setter resolves. Restore the
+            // selected mode on the next turn, after that write has completed.
+            setImmediate(() => this.syncOverrideSwitches());
             return;
         }
         this.accessory.context.overrideMode = mode;
+        this.platform.api.updatePlatformAccessories([this.accessory]);
         this.platform.log.info(`Mast override mode set to ${mode}.`);
         this.syncHomeKitState();
         if (mode === 'auto') {
-            await this.refreshFromApi();
+            void this.refreshFromApi();
         }
     }
     getOverrideMode() {
@@ -87,7 +92,15 @@ class MastFlagAccessory {
         this.pollTimer = setInterval(() => void this.refreshFromApi(), this.platform.config.pollIntervalSeconds * 1000);
         this.pollTimer.unref();
     }
-    async refreshFromApi() {
+    refreshFromApi() {
+        if (!this.refreshPromise) {
+            this.refreshPromise = this.performRefresh().finally(() => {
+                this.refreshPromise = undefined;
+            });
+        }
+        return this.refreshPromise;
+    }
+    async performRefresh() {
         if (!this.client) {
             this.apiFault = true;
             this.platform.log.warn('Mast API key is missing; Auto mode cannot refresh status.');

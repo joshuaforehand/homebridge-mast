@@ -18,6 +18,7 @@ export class MastFlagAccessory {
   private apiStatus?: MastStatus;
   private apiFault = false;
   private pollTimer?: NodeJS.Timeout;
+  private refreshPromise?: Promise<void>;
 
   public constructor(
     private readonly platform: MastPlatform,
@@ -61,6 +62,7 @@ export class MastFlagAccessory {
     this.syncHomeKitState();
     this.refreshFromApi();
     this.startPolling();
+    this.platform.api.on('shutdown', () => clearInterval(this.pollTimer));
   }
 
   private getOverrideService(mode: OverrideMode, label: string): Service {
@@ -84,16 +86,19 @@ export class MastFlagAccessory {
 
   private async setOverrideMode(mode: OverrideMode, value: CharacteristicValue): Promise<void> {
     if (value !== true) {
-      this.syncOverrideSwitches();
+      // HAP applies the requested value after the setter resolves. Restore the
+      // selected mode on the next turn, after that write has completed.
+      setImmediate(() => this.syncOverrideSwitches());
       return;
     }
 
     this.accessory.context.overrideMode = mode;
+    this.platform.api.updatePlatformAccessories([this.accessory]);
     this.platform.log.info(`Mast override mode set to ${mode}.`);
     this.syncHomeKitState();
 
     if (mode === 'auto') {
-      await this.refreshFromApi();
+      void this.refreshFromApi();
     }
   }
 
@@ -123,7 +128,16 @@ export class MastFlagAccessory {
     this.pollTimer.unref();
   }
 
-  private async refreshFromApi(): Promise<void> {
+  private refreshFromApi(): Promise<void> {
+    if (!this.refreshPromise) {
+      this.refreshPromise = this.performRefresh().finally(() => {
+        this.refreshPromise = undefined;
+      });
+    }
+    return this.refreshPromise;
+  }
+
+  private async performRefresh(): Promise<void> {
     if (!this.client) {
       this.apiFault = true;
       this.platform.log.warn('Mast API key is missing; Auto mode cannot refresh status.');

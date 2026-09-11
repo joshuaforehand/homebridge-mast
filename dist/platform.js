@@ -21,6 +21,11 @@ class MastPlatform {
     }
     discoverAccessory() {
         const uuid = this.api.hap.uuid.generate(this.deviceId);
+        const obsoleteAccessories = this.accessories.filter(accessory => accessory.UUID !== uuid);
+        if (obsoleteAccessories.length > 0) {
+            this.api.unregisterPlatformAccessories(settings_1.PLUGIN_NAME, settings_1.PLATFORM_NAME, obsoleteAccessories);
+            this.accessories.splice(0, this.accessories.length, ...this.accessories.filter(accessory => accessory.UUID === uuid));
+        }
         const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
         if (existingAccessory) {
             this.log.debug('Restoring existing Mast accessory from cache.');
@@ -33,6 +38,7 @@ class MastPlatform {
         accessory.context.deviceId = this.deviceId;
         new mastAccessory_1.MastFlagAccessory(this, accessory);
         this.api.registerPlatformAccessories(settings_1.PLUGIN_NAME, settings_1.PLATFORM_NAME, [accessory]);
+        this.accessories.push(accessory);
     }
     get deviceId() {
         const countryCode = this.config.countryCode.toUpperCase();

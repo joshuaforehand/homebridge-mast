@@ -12,6 +12,7 @@ export declare class MastFlagAccessory {
     private apiStatus?;
     private apiFault;
     private pollTimer?;
+    private refreshPromise?;
     constructor(platform: MastPlatform, accessory: PlatformAccessory<MastAccessoryContext>);
     private getOverrideService;
     private getContactState;
@@ -20,6 +21,7 @@ export declare class MastFlagAccessory {
     private getEffectiveHalfMast;
     private startPolling;
     private refreshFromApi;
+    private performRefresh;
     private syncHomeKitState;
     private syncOverrideSwitches;
 }

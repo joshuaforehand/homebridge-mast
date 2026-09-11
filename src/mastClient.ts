@@ -18,6 +18,7 @@ export class MastClient {
     private readonly apiKey: string,
     private readonly countryCode: string,
     private readonly stateCode?: string,
+    private readonly timeoutMs = 10_000,
   ) {}
 
   public async getStatus(): Promise<MastStatus> {
@@ -29,6 +30,7 @@ export class MastClient {
     }
 
     const response = await fetch(url, {
+      signal: AbortSignal.timeout(this.timeoutMs),
       headers: {
         'accept': 'application/json',
         'x-mast-license-key': this.apiKey,
