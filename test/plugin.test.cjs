@@ -136,3 +136,33 @@ test('shutdown clears the polling timer', t => {
   api.emit('shutdown');
   assert.equal(impl.pollTimer._destroyed, true);
 });
+
+test('new services expose meaningful configured names', t => {
+  const { acc } = accessory(t);
+  const entries = [[acc.getService(hap.Service.ContactSensor), 'Flag Half Staff'],
+    ...Object.entries({ auto: 'Automatic', on: 'Force Half Staff', off: 'Force Full Staff' })
+      .map(([mode, name]) => [acc.getServiceById(hap.Service.Switch, mode), name])];
+  for (const [service, name] of entries) {
+    assert.equal(service.getCharacteristic(hap.Characteristic.Name).value, name);
+    assert.equal(service.getCharacteristic(hap.Characteristic.ConfiguredName).value, name);
+  }
+});
+
+test('cached services gain configured names without replacing identities or custom names', t => {
+  const { platform } = setup(t);
+  const acc = new PlatformAccessory('Mast', hap.uuid.generate('cached-names'));
+  acc.context.deviceId = 'cached';
+  const contact = acc.addService(hap.Service.ContactSensor, 'Mast');
+  const auto = acc.addService(hap.Service.Switch, 'Mast Override Auto', 'auto');
+  const on = acc.addService(hap.Service.Switch, 'Mast Override On', 'on');
+  const off = acc.addService(hap.Service.Switch, 'Mast Override Off', 'off');
+  on.addCharacteristic(hap.Characteristic.ConfiguredName).updateValue('My Flag Override');
+  new MastFlagAccessory(platform, acc);
+  assert.equal(acc.getService(hap.Service.ContactSensor), contact);
+  assert.equal(acc.getServiceById(hap.Service.Switch, 'auto'), auto);
+  assert.equal(acc.getServiceById(hap.Service.Switch, 'on'), on);
+  assert.equal(acc.getServiceById(hap.Service.Switch, 'off'), off);
+  assert.equal(auto.getCharacteristic(hap.Characteristic.ConfiguredName).value, 'Automatic');
+  assert.equal(contact.getCharacteristic(hap.Characteristic.ConfiguredName).value, 'Flag Half Staff');
+  assert.equal(on.getCharacteristic(hap.Characteristic.ConfiguredName).value, 'My Flag Override');
+});

@@ -15,6 +15,7 @@ export declare class MastFlagAccessory {
     private refreshPromise?;
     constructor(platform: MastPlatform, accessory: PlatformAccessory<MastAccessoryContext>);
     private getOverrideService;
+    private configureServiceName;
     private getContactState;
     private setOverrideMode;
     private getOverrideMode;
