@@ -48,15 +48,15 @@ export class MastFlagAccessory {
     this.statusService = this.accessory.getService(this.Service.ContactSensor)
       ?? this.accessory.addService(this.Service.ContactSensor, this.platform.config.name);
 
+    this.configureServiceName(this.statusService, 'Flag Half Staff');
     this.statusService
-      .setCharacteristic(this.Characteristic.Name, this.platform.config.name)
       .getCharacteristic(this.Characteristic.ContactSensorState)
       .onGet(() => this.getContactState());
 
     this.overrideServices = {
-      auto: this.getOverrideService('auto', 'Auto'),
-      on: this.getOverrideService('on', 'On'),
-      off: this.getOverrideService('off', 'Off'),
+      auto: this.getOverrideService('auto', 'Automatic'),
+      on: this.getOverrideService('on', 'Force Half Staff'),
+      off: this.getOverrideService('off', 'Force Full Staff'),
     };
 
     this.syncHomeKitState();
@@ -67,15 +67,25 @@ export class MastFlagAccessory {
 
   private getOverrideService(mode: OverrideMode, label: string): Service {
     const service = this.accessory.getServiceById(this.Service.Switch, mode)
-      ?? this.accessory.addService(this.Service.Switch, `${this.platform.config.name} Override ${label}`, mode);
+      ?? this.accessory.addService(this.Service.Switch, label, mode);
 
+    this.configureServiceName(service, label);
     service
-      .setCharacteristic(this.Characteristic.Name, `${this.platform.config.name} Override ${label}`)
       .getCharacteristic(this.Characteristic.On)
       .onGet(() => this.getOverrideMode() === mode)
       .onSet(value => this.setOverrideMode(mode, value));
 
     return service;
+  }
+
+  private configureServiceName(service: Service, name: string): void {
+    service.displayName = name;
+    service.setCharacteristic(this.Characteristic.Name, name);
+    // Apple Home uses ConfiguredName for services within a grouped accessory.
+    // Only seed it once so a user's subsequent rename survives restoration.
+    if (!service.testCharacteristic(this.Characteristic.ConfiguredName)) {
+      service.addCharacteristic(this.Characteristic.ConfiguredName).updateValue(name);
+    }
   }
 
   private getContactState(): CharacteristicValue {

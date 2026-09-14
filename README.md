@@ -6,9 +6,9 @@ It exposes a HomeKit contact sensor that is detected when the selected flag
 status is half-mast / half-staff. It also exposes three mutually-exclusive
 override switches:
 
-- `Override Auto`: use the Mast API
-- `Override On`: force half-mast
-- `Override Off`: force full-staff
+- `Automatic`: use the Mast API
+- `Force Half Staff`: force half-mast
+- `Force Full Staff`: force full-staff
 
 HomeKit does not provide a native single tri-state switch control, so the three
 switch services represent the three override states.
@@ -59,3 +59,19 @@ After merging the release changes, create a GitHub release with a tag matching
 `package.json`, for example `v0.1.1`. The publishing workflow builds, lints, and
 tests before publishing through npm OIDC. It skips prereleases and rejects tags
 that do not match the package version. No npm token secret is needed.
+
+## Names in Apple Home
+
+The accessory contains `Automatic`, `Force Half Staff`, and `Force Full Staff`
+switches, plus a `Flag Half Staff` contact sensor. Only one mode is selected.
+The overrides change the reported status; they do not physically move a flag.
+
+Apple Home uses its built-in contact sensor wording: **Closed means half-staff;
+Open means full-staff**. In Automatic mode, check for a fault if API data is
+unavailable; Open alone does not prove a successful API refresh.
+
+After updating, restart the Mast child bridge to add the names to existing
+services. Service identities are preserved, so re-pairing is not required by
+this change. Apple Home may retain names saved locally; if generic names remain,
+edit the individual tile names in Home. Names already stored in ConfiguredName
+are preserved on restart.
