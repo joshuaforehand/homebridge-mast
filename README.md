@@ -28,6 +28,8 @@ switch services represent the three override states.
 **Head over to [MAST API](https://mast.today/api.html) to obtain a Free Mast API License.**
 
 `apiKey` is sent to Mast as the `x-mast-license-key` header.
+Requests identify themselves with the user agent
+`Homebridge (homebridge-mast; +https://github.com/joshuaforehand/homebridge-mast)`.
 
 Leave `stateCode` blank to use national status only.
 

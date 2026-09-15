@@ -24,6 +24,7 @@ class MastClient {
             signal: AbortSignal.timeout(this.timeoutMs),
             headers: {
                 'accept': 'application/json',
+                'user-agent': 'Homebridge (homebridge-mast; +https://github.com/joshuaforehand/homebridge-mast)',
                 'x-mast-license-key': this.apiKey,
             },
         });

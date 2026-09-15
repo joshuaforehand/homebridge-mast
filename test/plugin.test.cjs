@@ -112,6 +112,8 @@ test('client sends location and license header and validates response', async t 
     assert.equal(url.searchParams.get('countryCode'), 'US');
     assert.equal(url.searchParams.get('stateCode'), 'AZ');
     assert.equal(options.headers['x-mast-license-key'], 'test-key');
+    assert.equal(options.headers['user-agent'],
+      'Homebridge (homebridge-mast; +https://github.com/joshuaforehand/homebridge-mast)');
     assert.ok(options.signal instanceof AbortSignal);
     return { ok: true, json: async () => ({ ok: true, status: { isHalfMast: true } }) };
   });
