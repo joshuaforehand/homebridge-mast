@@ -90,8 +90,8 @@ export class MastFlagAccessory {
 
   private getContactState(): CharacteristicValue {
     return this.getEffectiveHalfMast()
-      ? this.Characteristic.ContactSensorState.CONTACT_DETECTED
-      : this.Characteristic.ContactSensorState.CONTACT_NOT_DETECTED;
+      ? this.Characteristic.ContactSensorState.CONTACT_NOT_DETECTED
+      : this.Characteristic.ContactSensorState.CONTACT_DETECTED;
   }
 
   private async setOverrideMode(mode: OverrideMode, value: CharacteristicValue): Promise<void> {

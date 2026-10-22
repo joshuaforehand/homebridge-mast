@@ -2,8 +2,8 @@
 
 Homebridge plugin for the [Mast](https://www.mast.today/) flag status API.
 
-It exposes a HomeKit contact sensor that is detected when the selected flag
-status is half-mast / half-staff. It also exposes three mutually-exclusive
+It exposes a HomeKit contact sensor that is Closed at full staff (nominal)
+and Open at half-mast / half-staff (exception). It also exposes three mutually-exclusive
 override switches:
 
 - `Automatic`: use the Mast API
@@ -68,12 +68,15 @@ The accessory contains `Automatic`, `Force Half Staff`, and `Force Full Staff`
 switches, plus a `Flag Half Staff` contact sensor. Only one mode is selected.
 The overrides change the reported status; they do not physically move a flag.
 
-Apple Home uses its built-in contact sensor wording: **Closed means half-staff;
-Open means full-staff**. In Automatic mode, check for a fault if API data is
-unavailable; Open alone does not prove a successful API refresh.
+Apple Home uses its built-in contact sensor wording: **Closed means full-staff;
+Open means half-staff**. In Automatic mode, check for a fault if API data is
+unavailable; Closed alone does not prove a successful API refresh.
 
 After updating, restart the Mast child bridge to add the names to existing
 services. Service identities are preserved, so re-pairing is not required by
 this change. Apple Home may retain names saved locally; if generic names remain,
 edit the individual tile names in Home. Names already stored in ConfiguredName
 are preserved on restart.
+
+This reverses the original contact sensor mapping. Update existing HomeKit
+automations to trigger on Open for half-staff and Closed for full-staff.
