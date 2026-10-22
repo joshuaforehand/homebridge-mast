@@ -66,8 +66,8 @@ class MastFlagAccessory {
     }
     getContactState() {
         return this.getEffectiveHalfMast()
-            ? this.Characteristic.ContactSensorState.CONTACT_DETECTED
-            : this.Characteristic.ContactSensorState.CONTACT_NOT_DETECTED;
+            ? this.Characteristic.ContactSensorState.CONTACT_NOT_DETECTED
+            : this.Characteristic.ContactSensorState.CONTACT_DETECTED;
     }
     async setOverrideMode(mode, value) {
         if (value !== true) {

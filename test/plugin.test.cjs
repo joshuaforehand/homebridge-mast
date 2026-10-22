@@ -50,7 +50,7 @@ test('override selection persists context and updates contact state', async t =>
   await switchFor(acc, 'on').handleSetRequest(true);
   assert.equal(api.updated.at(-1), acc);
   assert.equal(acc.getService(hap.Service.ContactSensor).getCharacteristic(hap.Characteristic.ContactSensorState).value,
-    hap.Characteristic.ContactSensorState.CONTACT_DETECTED);
+    hap.Characteristic.ContactSensorState.CONTACT_NOT_DETECTED);
 });
 
 test('location change removes cached old accessory and registers replacement', t => {
@@ -167,4 +167,24 @@ test('cached services gain configured names without replacing identities or cust
   assert.equal(auto.getCharacteristic(hap.Characteristic.ConfiguredName).value, 'Automatic');
   assert.equal(contact.getCharacteristic(hap.Characteristic.ConfiguredName).value, 'Flag Half Staff');
   assert.equal(on.getCharacteristic(hap.Characteristic.ConfiguredName).value, 'My Flag Override');
+});
+
+
+test('contact state is closed at full staff and open at half staff in Auto and overrides', async t => {
+  const { acc, impl } = accessory(t);
+  await nextTurn();
+  const contact = acc.getService(hap.Service.ContactSensor).getCharacteristic(hap.Characteristic.ContactSensorState);
+  // Assert HAP wire values as well as cached notifications and live reads:
+  // 0 = contact detected (Closed), 1 = contact not detected (Open).
+  for (const isHalfMast of [false, true, false]) {
+    impl.client = { getStatus: async () => ({ isHalfMast }) };
+    await impl.refreshFromApi();
+    assert.equal(contact.value, isHalfMast ? 1 : 0);
+    assert.equal(await contact.handleGetRequest(), isHalfMast ? 1 : 0);
+  }
+  for (const [mode, expected] of [['on', 1], ['off', 0], ['on', 1]]) {
+    await switchFor(acc, mode).handleSetRequest(true);
+    assert.equal(contact.value, expected);
+    assert.equal(await contact.handleGetRequest(), expected);
+  }
 });
